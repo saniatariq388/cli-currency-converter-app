@@ -1,13 +1,14 @@
 {
-  "name": "s388ta-currrency-converter-app",
+  "name": "s38ta-oop-mybank-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is cli based OOP my bank app with TypeScript,NodeJs and Inquirer.",
   "main": "main.js",
   "type":"module",
+   "bin":"main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Sania Tariq",
   "license": "ISC",
   "dependencies": {
     "inquirer": "^9.2.20"

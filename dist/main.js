@@ -1,51 +1,114 @@
 #! /usr/bin/env node
 import inquirer from "inquirer";
 import chalk from "chalk";
-const currency = {
-    USD: 1, // base currency
-    EUR: 0.92,
-    GBP: 0.78,
-    JPY: 156.95,
-    CAD: 1.36,
-    AUD: 1.50,
-    CNY: 7.24,
-    ZAR: 18.40,
-    PKR: 278.70,
-    YEN: 156.96
-};
-console.log("***************************************************");
-console.log("****************Currency Converter App************");
-console.log("***************************************************");
-let userAnswer = await inquirer.prompt([
-    {
-        name: 'from',
-        message: chalk.yellow("Converting From Currency"),
-        type: 'list',
-        choices: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CNY', 'ZAR', 'YEN', 'PKR']
-    },
-    {
-        name: 'to',
-        message: chalk.yellow("converting To Currency"),
-        type: 'list',
-        choices: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CNY', 'ZAR', 'YEN', 'PKR']
-    },
-    {
-        name: 'amount',
-        message: chalk.yellow("Enter Your Amount To Convert"),
-        type: 'number'
+//Class for Account Number
+class BankAccount {
+    accountNumber;
+    balance;
+    constructor(accountNumber, balance) {
+        this.accountNumber = accountNumber;
+        this.balance = balance;
     }
-]);
-let fromAmount = currency[userAnswer.from];
-let toAmount = currency[userAnswer.to];
-let amount = userAnswer.amount;
-let baseAmount = amount / fromAmount;
-let convertedAmount = baseAmount * toAmount;
-console.log("***************************************************");
-console.log(chalk.greenBright(`Converted amount ` + convertedAmount));
-console.log("***************************************************");
-console.log(chalk.red(`Convert from currency: ` + fromAmount));
-console.log("***************************************************");
-console.log(chalk.blue(`Convert to currency ` + toAmount));
-console.log("***************************************************");
-console.log(chalk.magenta(`How much amount ` + amount));
-console.log("***************************************************");
+    withdraw(amount) {
+        if (amount < this.balance) {
+            this.balance -= amount;
+            console.log(chalk.red(`Widthdraw Successful! Your Current Balance is $${this.balance}.`));
+        }
+        else {
+            console.log(chalk.yellow("Insificent Balance."));
+            console.log(chalk.green(`Your Current Balance is $${this.balance}.`));
+        }
+        ;
+    }
+    deposit(amount) {
+        if (amount > 100) {
+            amount -= 1;
+            this.balance += amount; // Update the balance with the amount
+            console.log(chalk.bold.blue(`Deposit of $${amount} is Succussfully Done! $1 deposit charges is Deduct From Your Deposit.\n Your New Balance is $${this.balance}.`));
+        }
+        else if (amount <= 100) {
+            amount -= 0;
+            this.balance += amount; // Update the balance with the amount
+            console.log(chalk.bold.yellow(`Deposit of $${amount} is Successfully Done! Your New Balance is $${this.balance}.`));
+        }
+    }
+    checkBalance() {
+        console.log(chalk.green(`Your Balance is $${this.balance}.`));
+    }
+}
+//  create class for customers
+class Customer {
+    firstName;
+    lastName;
+    gender;
+    age;
+    mobileNumber;
+    account;
+    constructor(firstName, lastName, gender, age, mobileNumber, account) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.age = age;
+        this.mobileNumber = mobileNumber;
+        this.account = account;
+    }
+}
+// create Bank account
+let accounts = [
+    new BankAccount(2202, 2000),
+    new BankAccount(2203, 2500),
+    new BankAccount(2204, 5000)
+];
+//   create Customers
+let customers = [
+    new Customer("Tariq", "Ali", "Male", 48, 30057467, accounts[0]),
+    new Customer("Sania", "Tariq", "Female", 45, 774934935, accounts[1]),
+    new Customer("Nasir", "Ali", "Male", 12, 2134037345, accounts[2])
+];
+async function accountHolder() {
+    do {
+        let accountNumber = await inquirer.prompt({
+            name: "accountnumber",
+            type: "input",
+            message: "Enter Your Account Number:"
+        });
+        let customer = customers.find(customer => customer.account.accountNumber == accountNumber.accountnumber);
+        if (customer) {
+            console.log(chalk.magenta.bold(`Welcome ${customer.firstName} ${customer.lastName} to Our OOP Bank.`));
+            let answer = await inquirer.prompt({
+                name: "select",
+                type: "list",
+                message: "Please Enter Your Operation:",
+                choices: ["Deposit", "Withdraw", "Check Balance", "Exit"]
+            });
+            if (answer.select === "Deposit") {
+                let amountDeposit = await inquirer.prompt({
+                    name: "amount",
+                    type: "input",
+                    message: "Enter your Amount To Deposit:"
+                });
+                customer.account.deposit(amountDeposit.amount);
+            }
+            else if (answer.select === "Withdraw") {
+                let amountWithdraw = await inquirer.prompt({
+                    name: "amount",
+                    type: "input",
+                    message: "Enter your Amount To Withdraw:"
+                });
+                customer.account.withdraw(amountWithdraw.amount);
+            }
+            else if (answer.select === "Check Balance") {
+                console.log(chalk.yellow(`Your Balance is $${customer.account.balance}`));
+            }
+            else if (answer.select === "Exit") {
+                console.log(chalk.red("Exiting..."));
+                console.log(chalk.magenta("*** Thank You For Using Our Services ***"));
+                return;
+            }
+        }
+        else {
+            console.log(chalk.yellow("Invalid Account Number"));
+        }
+    } while (true);
+}
+accountHolder();
